@@ -43,9 +43,41 @@ func (l *Lexer) NextToken() (*token.Token, error) {
 	// determine token
 	switch r {
 	case '=':
-		tok = l.makeToken(token.ASSIGN, string(r))
+		if n := l.peek(); n == '=' {
+			l.skipWhitespaceAndReadNext()
+			tok = l.makeToken(token.EQ, "==")
+		} else {
+			tok = l.makeToken(token.ASSIGN, string(r))
+		}
 	case '+':
 		tok = l.makeToken(token.PLUS, string(r))
+	case '-':
+		tok = l.makeToken(token.MINUS, string(r))
+	case '!':
+		if n := l.peek(); n == '=' {
+			l.skipWhitespaceAndReadNext()
+			tok = l.makeToken(token.NEQ, "!=")
+		} else {
+			tok = l.makeToken(token.BANG, string(r))
+		}
+	case '|':
+		if n := l.peek(); n == '|' {
+			l.skipWhitespaceAndReadNext()
+			tok = l.makeToken(token.OR, "||")
+		} else {
+			tok = l.makeToken(token.BITWISE_OR, string(r))
+		}
+	case '&':
+		if n := l.peek(); n == '&' {
+			l.skipWhitespaceAndReadNext()
+			tok = l.makeToken(token.AND, "&&")
+		} else {
+			tok = l.makeToken(token.BITWISE_AND, string(r))
+		}
+	case '*':
+		tok = l.makeToken(token.ASTERISK, string(r))
+	case '/':
+		tok = l.makeToken(token.SLASH, string(r))
 	case ',':
 		tok = l.makeToken(token.COMMA, string(r))
 	case ';':
@@ -58,6 +90,10 @@ func (l *Lexer) NextToken() (*token.Token, error) {
 		tok = l.makeToken(token.LBRACE, string(r))
 	case '}':
 		tok = l.makeToken(token.RBRACE, string(r))
+	case '<':
+		tok = l.makeToken(token.LT, string(r))
+	case '>':
+		tok = l.makeToken(token.GT, string(r))
 	default:
 		if l.isIdentifierStartChar(r) {
 			tok, err = l.readIdentifer(r)
@@ -155,4 +191,14 @@ func (l *Lexer) readNumber(r rune) (*token.Token, error) {
 			return l.makeToken(token.INT, num.String()), nil
 		}
 	}
+}
+
+func (l *Lexer) peek() rune {
+	r, _, err := l.source.ReadRune()
+	if err != nil {
+		return 0
+	}
+
+	l.source.UnreadRune()
+	return r
 }

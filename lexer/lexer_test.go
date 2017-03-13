@@ -10,7 +10,7 @@ import (
 )
 
 func TestIndividualTokens(t *testing.T) {
-	source := strings.NewReader(`=+(){},;`)
+	source := strings.NewReader(`=+(){},;-!*/<>`)
 	testCases := []struct {
 		name            string
 		expectedType    token.TokenType
@@ -24,6 +24,12 @@ func TestIndividualTokens(t *testing.T) {
 		{"rbrace", token.RBRACE, "}"},
 		{"comma", token.COMMA, ","},
 		{"semicolon", token.SEMICOLON, ";"},
+		{"minus", token.MINUS, "-"},
+		{"bang", token.BANG, "!"},
+		{"asterisk", token.ASTERISK, "*"},
+		{"slash", token.SLASH, "/"},
+		{"lt", token.LT, "<"},
+		{"gt", token.GT, ">"},
 		{"eof", token.EOF, ""},
 	}
 
@@ -46,7 +52,12 @@ let add = fn(x, y) {
 	x + y;
 };
 
-let result = add(five, ten);`)
+let result = add(five, ten);
+if a < b || b > c && a == c || b != c {
+	return true
+} else {
+	return false
+}`)
 	testCases := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
@@ -87,6 +98,31 @@ let result = add(five, ten);`)
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
+		{token.IF, "if"},
+		{token.IDENT, "a"},
+		{token.LT, "<"},
+		{token.IDENT, "b"},
+		{token.OR, "||"},
+		{token.IDENT, "b"},
+		{token.GT, ">"},
+		{token.IDENT, "c"},
+		{token.AND, "&&"},
+		{token.IDENT, "a"},
+		{token.EQ, "=="},
+		{token.IDENT, "c"},
+		{token.OR, "||"},
+		{token.IDENT, "b"},
+		{token.NEQ, "!="},
+		{token.IDENT, "c"},
+		{token.LBRACE, "{"},
+		{token.RETURN, "return"},
+		{token.TRUE, "true"},
+		{token.RBRACE, "}"},
+		{token.ELSE, "else"},
+		{token.LBRACE, "{"},
+		{token.RETURN, "return"},
+		{token.FALSE, "false"},
+		{token.RBRACE, "}"},
 		{token.EOF, ""},
 	}
 
